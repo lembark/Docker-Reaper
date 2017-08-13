@@ -1,0 +1,10 @@
+#!/bin/env perl
+
+for( 1 .. 1_000 )
+{
+    fork and next;
+
+    sleep 1;
+}
+
+exit 0

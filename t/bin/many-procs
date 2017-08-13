@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for i in /bin/*;
+do
+    sleep 1;
+done;
+
+exit 0;
