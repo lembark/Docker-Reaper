@@ -3,9 +3,22 @@
 # housekeeping
 ########################################################################
 
-package Docker::Runner v0.1.0;
-
 use v5.24;
-use Docker::Reaper;
+use Docker::Reaper qw( :exec= :exit=1 );
 
+our $VERSION    = v0.1.0;
 
+# this is not a module
+0
+__END__
+
+=head1 NAME
+
+docker-runner - Execute a shell command.
+
+=head1 SYNOPSIS
+
+    # execute a job that forks, with the runner reaping the 
+    # children, exiting with the status of the job.
+
+    docker run foobar 'docker-runner /path/to/job-that-forks';
