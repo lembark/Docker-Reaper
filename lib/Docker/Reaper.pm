@@ -14,6 +14,8 @@ use Symbol  qw( qualify_to_ref  );
 # package variables
 ########################################################################
 
+our @CARP_NOT       = ( __PACKAGE__ );
+
 my $verbose         = $ENV{ VERBOSE             } // '';
 my $log_exits       = $ENV{ INIT_LOG_EXITS      } // $verbose;
 my $debug_parent    = $ENV{ INIT_DEBUG_PARENT   } // '' ;
@@ -66,7 +68,6 @@ my $format_exit
 my $log_exit_stack
 = sub
 {
-
     return
 };
 
@@ -75,7 +76,7 @@ my $log_exit_stack
 # child exec's @ARGV.
 ########################################################################
 
-sub init
+sub reaper
 {
     my $log_exits   = defined wantarray;
 
@@ -94,7 +95,7 @@ sub init
         ? exec @_
         : @ARGV
         ? exec @ARGV
-        : croak 'Bogus init: both @_ and @ARGV are empty.'
+        : croak 'Bogus reaper: both @_ and @ARGV are empty.'
         ;
 
         die "Failed exec: $!\n"
@@ -195,9 +196,9 @@ sub import
 
         my $exitz
         = $arg
-        ? init $arg
+        ? reaper $arg
         : @ARGV
-        ? init @ARGV
+        ? reaper @ARGV
         : croak 'Bogus Docker::Reaper: both ":exec=" argument & @ARGV empty';
         ;
 
@@ -210,7 +211,7 @@ sub import
     {
         my $caller  = caller;
 
-        *{ qualify_to_ref init => $caller }  = \&init;
+        *{ qualify_to_ref reaper => $caller }  = \&init;
     }
 
     return
@@ -234,7 +235,7 @@ Docker::Reaper - Init-ish function to reap children.
 
     use Docker::Reaper;
 
-    init qw( /path/to/program arg arg ... );
+    reaper qw( /path/to/program arg arg ... );
 
     # immediately exec the program at BEGIN time when the 
     # module is used, optionally with arguments.
@@ -252,7 +253,6 @@ Docker::Reaper - Init-ish function to reap children.
     # false value to exec uses @ARGV.
 
     use Docker::Reaper qw( :exec= );
-
 
     # turn on logging of exit status to stdout for all exiting
     # procs, not just the child.
